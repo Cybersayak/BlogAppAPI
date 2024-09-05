@@ -20,7 +20,7 @@ export const signup = async (req, res, next) => {
   const { name, email, password } = req.body;
   let existingUser;
   try {
-    existingUser = await User.findOne({ email });// identify if user exists by email
+    existingUser = await User.findOne({ email }); // identify if user exists by email
   } catch (err) {
     return console.log(err);
   }
@@ -29,11 +29,12 @@ export const signup = async (req, res, next) => {
       message: "User Already Exist",
     });
   }
-  const hashedPassword = bcrypt.hashSync(password);//BCrypt used for hashing 
+  const hashedPassword = bcrypt.hashSync(password); //BCrypt used for hashing
   const user = new User({
     name,
     email,
-    password:hashedPassword,
+    password: hashedPassword,
+    blogs: [],
   });
   try {
     user.save();
@@ -54,17 +55,13 @@ export const login = async (req, res, next) => {
     return console.log(err);
   }
   if (!existingUser) {
-    return res
-      .status(404)
-      .json({message: "User not found"});
+    return res.status(404).json({ message: "User not found" });
   }
   const isPasswordValid = bcrypt.compareSync(password, existingUser.password);
-  if (!isPasswordValid){
-    return res
-      .status(400)
-      .json({ message: "Incorrect Password" })
+  if (!isPasswordValid) {
+    return res.status(400).json({ message: "Incorrect Password" });
   }
   return res.status(200).json({
-    message: "Logged in successfully"
-  })
-}
+    message: "Logged in successfully",
+  });
+};
