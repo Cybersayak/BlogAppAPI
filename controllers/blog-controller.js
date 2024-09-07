@@ -16,15 +16,15 @@ export const getAllBlogs = async (req, res, next) => {
 export const createBlog = async (req, res, next) => {
   const { title, description, user, image } = req.body;
 
-  // let existingBlog;
-  // try {
-  //   existingBlog = await Blog.findOne({ title });
-  // } catch {
-  //   return console.log(err);
-  // }
-  // if (existingBlog) {
-  //   return res.status(400).json({ message: "Blog already exists"});
-  // }
+  let existingBlog;
+  try {
+    existingBlog = await Blog.findOne({ title });
+  } catch {
+    return console.log(err);
+  }
+  if (existingBlog) {
+    return res.status(400).json({ message: "Blog already exists" });
+  }
 
   let existingUser;
   try {
