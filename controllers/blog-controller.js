@@ -47,7 +47,7 @@ export const createBlog = async (req, res, next) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     await blog.save({ session });
-    existingUser.blog.push(blog);
+    existingUser.blogs.push(blog);
     await existingUser.save({ session });
     await session.commitTransaction();
   } catch (err) {
@@ -93,7 +93,9 @@ export const deleteBlog = async (req, res, next) => {
   const id = req.params.id;
   let blog;
   try {
-    blog = await Blog.findByIdAndRemove(id);
+    blog = await Blog.findByIdAndRemove(id).populate("user");
+    await blog.user.blogs.pull(blog);
+    await blog.user.save();
   } catch (err) {
     return console.log(err);
   }
@@ -101,4 +103,18 @@ export const deleteBlog = async (req, res, next) => {
     return res.status(404).json({ message: "Unable to find the Blog " });
   }
   return res.status(200).json({ message: "Blog deleted successfully" });
+};
+
+export const getByUserId = async (req, res, next) => {
+  const userIdd = req.params.id;
+  let userBlogs;
+  try {
+    userBlogs = await Blog.findById(userId).populate("blogs");
+  } catch (err) {
+    return console.log(err);
+  }
+  if (!userBlogs) {
+    return res.status(404).json({ message: "Unable to find the Blog" });
+  }
+  return res.status(200).json({ blogs: userBlogs });
 };
